@@ -1,3 +1,4 @@
+// json-server --watch db/db.json --routes db/routes.json --static .
 // Instructions
 // - Go to this template: https://codesandbox.io/s/javascript-solo-project-ygmmv?file=/styles/index.css
 // - Export to zip and open in VS code
@@ -44,136 +45,247 @@
 // 
 
 let state = {
-        "vets": [
-          {
-            "id": 1,
-            "firstName": "",
-            "lastName": ""
-          }
-        ],
-    }
+  //  link
+  vetId: null,
+
+  selectedVet: null,
+  vets: [],
+  animals: []
+}
 
 
 const selectVetFormEl = document.querySelector("#create-vet-form")
 
 function listensToSelectVetForm() {
-    selectVetFormEl.addEventListener("submit", (event) => {
-        event.preventDefault();
+selectVetFormEl.addEventListener("submit", (event) => {
+event.preventDefault();
 
-        const vetFirstNameInput = selectVetFormEl.querySelector("#first-name")
-        // const vetFirstNameOutput = animalNameInput
+const vetFirstNameInput = selectVetFormEl.querySelector("#first-name")
+// const vetFirstNameOutput = animalNameInput
 
-        // repeat for input of lastName
-        
-        console.log("first name: ", vetFirstNameInput.value)
+// repeat for input of lastName
 
-        const vetLastNameInput = selectVetFormEl.querySelector("#last-name")
+console.log("first name: ", vetFirstNameInput.value)
 
-      console.log("last name: ", vetLastNameInput.value)
-      
-      fetch('http://localhost:3000/vets', {
-        method: 'post',
-        body: JSON.stringify({firstName: vetFirstNameInput.value, lastName: vetLastNameInput.value}),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-        }).then(function (response) {
-          return response.json();
-          // console.log("response from post", response.json())
-          // response.json().then((vetData) => {
+const vetLastNameInput = selectVetFormEl.querySelector("#last-name")
 
-          // }) 
-          
-        }).then(function (newVet) {
-          console.log(newVet)
-          renderVetListItem(newVet)
+console.log("last name: ", vetLastNameInput.value)
 
-        })
-          // state = {
-          //       ...state,
-          //       firstName: vetFirstNameInput.value,
-          //       lastName: vetLastNameInput.value
-          //     };
-          
+fetch('http://localhost:3000/vets', {
+method: 'post',
+body: JSON.stringify({firstName: vetFirstNameInput.value, lastName: vetLastNameInput.value}),
+headers: {
+  'Content-Type': 'application/json'
+}
+}).then(function (response) {
+  return response.json();
+  // console.log("response from post", response.json())
+  // response.json().then((vetData) => {
+
+  // }) 
+  
+}).then(function (newVet) {
+  console.log(newVet)
+  renderVetListItem(newVet)
+
+})
+  // state = {
+  //       ...state,
+  //       firstName: vetFirstNameInput.value,
+  //       lastName: vetLastNameInput.value
+  //     };
+  
 // output of the values of form?
 // use this - output of values 
 // ... and then create create elements on the page
 
-      
-      })
-    }
+
+})
+}
 
 listensToSelectVetForm()
 
 fetch('http://localhost:3000/vets', {
-  method: 'get',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-  }).then(function (response) {
-    return response.json();
-  }).then(function (vets, animals) {
-    // renderVetListItem(newVet)
+method: 'get',
+headers: {
+'Content-Type': 'application/json'
+}
+}).then(function (response) {
+return response.json();
+}).then(function (vets) {
+// renderVetListItem(newVet)
 vets.forEach(vet => {
-  renderVetListItem(vet)
-animals.forEach(animal => {
-    renderAnimalListItem(animal)
+renderVetListItem(vet)
 });
-    console.log(vets)
-    console.log(animals)
-  })
+console.log("array of Vets:", vets)
+})
 
-// 1) get the names to show up - John Smith
+// // 1) get the names to show up - John Smith
 const vetListEl = document.querySelector(".vet-list")
 
 function renderVetListItem(vet) {
-  // function renderVetListItem() { tried this
+// function renderVetListItem() { tried this
 // console.log("renderVetListItem", newVet)
 
-  const vetListItemEl = document.createElement("li");
-  // document.append(vetListItemEl)
-  // vetListEl.append(vetListItemEl)
+const vetListItemEl = document.createElement("li");
+// document.append(vetListItemEl)
+// vetListEl.append(vetListItemEl)
 
-  const vetListHeader3El = document.createElement("h3");
-  vetListItemEl.append(vetListHeader3El)
-  vetListHeader3El.innerText = `${vet.firstName} ${vet.lastName}`
+const vetListHeader3El = document.createElement("h3");
+vetListItemEl.append(vetListHeader3El)
+vetListHeader3El.innerText = `${vet.firstName} ${vet.lastName}`
 
-  const vetListViewButtonEl = document.createElement("button")
-  vetListItemEl.append(vetListViewButtonEl)
-  // 1) class might be useful here to link to query selector
-  vetListViewButtonEl.innerText = "View"
-  // listensToVetViewButtonEl(vetListViewButtonEl)
+const vetListViewButtonEl = document.createElement("button")
+vetListItemEl.append(vetListViewButtonEl)
+// 1) class might be useful here to link to query selector
+vetListViewButtonEl.innerText = "View"
+// listensToVetViewButtonEl(vetListViewButtonEl)
 
-  vetListViewButtonEl.addEventListener("click", (event) => {
+vetListViewButtonEl.addEventListener(`click`, () => {
+state.selectedVet = vet
+state.animals = vet.animals
+console.log("Here are the details of the selected vet and the animals they treat: ", state)
+// console.log("State View", state)
+
+activateCreateButton()
+
+
+renderAnimalListItem(vet.animals, vet.id)
+
+})
+vetListEl.append(vetListItemEl)
+}
+
+
+
+
+// 
+
+function activateCreateButton() {
+
+createButtonForAnimalsForm = document.querySelector('button[type="activatedSubmit"]')
+
+// vetViewButtonClick.getElementById = ("button").disabled = false
+createButtonForAnimalsForm.removeAttribute("disabled")
+
+console.log("activation of create button: ", createButtonForAnimalsForm)
+
+}
+
+const animalListEl = document.querySelector(".animal-list") 
+
+function renderAnimalListItem(animal) {
+const animalListItemEl = document.createElement("li");
+animalListEl.append(animalListItemEl)
+
+const animalListHeader3NameEl = document.createElement("h3");
+animalListItemEl.append(animalListHeader3NameEl)
+// document.getElementById("animalListHeader3NameEl").className = "animal-name"
+animalListHeader3NameEl.innerText = `${animal.name}` 
+
+const animalListHeader4TypeEl = document.createElement("h4");
+animalListItemEl.append(animalListHeader4TypeEl)
+// animalListHeader4TypeEl.getElementById("animalListHeader4TypeEl").className = "animal-type"
+animalListHeader4TypeEl.innerText = `${animal.type}` 
+
+// Not sure how to go about completing this
+// const animalListMicrochipButtonEl = document.createElement("button")
+// animalListItemEl.append(animalListMicrochipButtonEl)
+// animalListMicrochipButtonEl.innerText = `${animal.microchip}`
+
+console.log("clicked", vet, vet.animals)
+}
+    animalListEl.append(animalListItemEl)
+
+    fetch('http://localhost:3000/animals', {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+      }).then(function (response) {
+        return response.json();
+      }).then(function (animals) {
+        // renderVetListItem(newVet)
+    animals.forEach(animal => {
+      renderAnimalListItem(animal)
+    });
+        console.log("array of animals:", animals)
+      })
+
+
+const selectCreateAnimalForm = document.querySelector("#create-animal-form")
+
+function listensToCreateAnimalForm() {
+
+selectCreateAnimalForm.addEventListener("submit", (event)=>{
+  event.preventDefault();
+  const animalNameInput = document.querySelector("#name");
+
+  const animalTypeInput = document.querySelector("#type");
+
+
+fetch('http://localhost:3000/animals', {
+method: 'post',
+body: JSON.stringify({name: animalNameInput.value, type: animalTypeInput.value}),
+headers: {
+  'Content-Type': 'application/json'
+}
+}).then(function (response) {
+  return response.json();
+  // console.log("response from post", response.json())
+  // response.json().then((vetData) => {
+
+  // }) 
   
-    function renderAnimalListItem(animal) {
-        const animalListItemEl = document.createElement("li");
-        document.append(animalListItemEl)
+}).then(function (newAnimal) {
+  console.log(newAnimal)
+  renderVetListItem(newAnimal)
 
-        const animalListHeader3NameEl = animalListItemEl.createElement("h3");
-        animalListItemEl.append(animalListHeader3NameEl)
-        animalListHeader3NameEl.getElementById("animalListHeader3NameEl").className = "animal-name"
-        animalListHeader3NameEl.innerText = `${animal.name}` 
+})
+  // state = {
+  //       ...state,
+  //       firstName: vetFirstNameInput.value,
+  //       lastName: vetLastNameInput.value
+  //     };
+  
+// output of the values of form?
+// use this - output of values 
+// ... and then create create elements on the page
 
-        const animalListHeader4TypeEl = animalListItemEl.createElement("h4");
-        animalListItemEl.append(animalListHeader4TypeEl)
-        animalListHeader4TypeEl.getElementById("animalListHeader4TypeEl").className = "animal-type"
-        animalListHeader4TypeEl.innerText = `${animal.type}` 
+
+})
+}
 
 
-        const animalListMicrochipButtonEl = vetListItemEl.createElement("button")
-        vetListItemEl.append(animalListMicrochipButtonEl)
-        animalListMicrochipButtonEl.innerText = `${animal.microchip}`
+listensToCreateAnimalForm()
 
-        console.log("clicked", vet, vet.animals)
-    }          
+
+fetch('http://localhost:3000/animals', {
+method: 'get',
+headers: {
+'Content-Type': 'application/json'
+}
+}).then(function (response) {
+return response.json();
+}).then(function (animals) {
+// renderVetListItem(newVet)
+animals.forEach(animal => {
+renderAnimalListItem(animal)
+});
+console.log("array of animals:", animals)
 })
 
 
+// Code keeps deleting when animal added
 
-  vetListEl.append(vetListItemEl)
-  animalListEl.append(animalListItemEl)
-}
+
+
+
+
+
+
+
+
 // renderVetListItem();
 // renderVetListItem(newVet);
 // tried both
@@ -194,7 +306,7 @@ function renderVetListItem(vet) {
 
 
 //         const vetViewButtonClick = vetListViewButtonEl.querySelector("button")
-        
+
 //         vetViewButtonClick.getElementById = ("button").disabled = false
 
 //         console.log("vetViewButtonClick", vetViewButtonClick.value)
@@ -235,7 +347,7 @@ function renderVetListItem(vet) {
 //         event.preventDefault();
 
 //         const vetViewButtonClick = selectVetViewButtonEl.querySelector("button")
-        
+
 //         vetViewButtonClick.getElementById = ("button").disabled = false
 
 //         console.log("vetViewButtonClick", vetViewButtonClick.value)
@@ -269,94 +381,94 @@ function renderVetListItem(vet) {
 
 
 
-    function renderAnimalListItem(listOfAnimals) {
-    
-      const animalListEl = document.querySelector("animal-list")
-    
-      const {
-        name,
-        type,
-        microchip,
-      } = newAnimal;
-    
-      const animalListItemEl = document.createElement("li");
-      document.append(animalListItemEl)
-      
-      const animalListHeader3NameEl = animalListItemEl.createElement("h3");
-      animalListItemEl.append(animalListHeader3NameEl)
-      animalListHeader3NameEl.getElementById("animalListHeader3NameEl").className = "animal-name"
-      animalListHeader3NameEl.innerText = "${name}"
-console.log("Animal name: ", animalListHeader3NameEl)
+//     function renderAnimalListItem(listOfAnimals) {
 
-      const animalListHeader4TypeEl = animalListItemEl.createElement("h4");
-      animalListItemEl.append(animalListHeader4TypeEl)
-      animalListHeader4TypeEl.getElementById("animalListHeader4TypeEl").className = "animal-type"
-      animalListHeader4TypeEl.innerText = "${type}"
+//       const animalListEl = document.querySelector("animal-list")
 
-      const animalListMicrochipButtonEl = vetListItemEl.createElement("button")
-      vetListItemEl.append(animalListMicrochipButtonEl)
-      animalListMicrochipButtonEl.innerText = "${microchipButton}"
-    
-      return animalListItemEl;
-    }
+//       const {
+//         name,
+//         type,
+//         microchip,
+//       } = newAnimal;
 
-    const selectAnimalFormEl = document.querySelector("#create-animal-form")
+//       const animalListItemEl = document.createElement("li");
+//       document.append(animalListItemEl)
 
-function listensToSelectAnimalForm() {
-    selectAnimalFormEl.addEventListener("submit", (event) => {
-        event.preventDefault();
+//       const animalListHeader3NameEl = animalListItemEl.createElement("h3");
+//       animalListItemEl.append(animalListHeader3NameEl)
+//       animalListHeader3NameEl.getElementById("animalListHeader3NameEl").className = "animal-name"
+//       animalListHeader3NameEl.innerText = "${name}"
+// console.log("Animal name: ", animalListHeader3NameEl)
 
-        const animalNameInput = selectAnimalFormEl.querySelector("#animal-name")
-      
-        console.log("animal name: ", animalNameInput.value)
+//       const animalListHeader4TypeEl = animalListItemEl.createElement("h4");
+//       animalListItemEl.append(animalListHeader4TypeEl)
+//       animalListHeader4TypeEl.getElementById("animalListHeader4TypeEl").className = "animal-type"
+//       animalListHeader4TypeEl.innerText = "${type}"
+
+//       const animalListMicrochipButtonEl = vetListItemEl.createElement("button")
+//       vetListItemEl.append(animalListMicrochipButtonEl)
+//       animalListMicrochipButtonEl.innerText = "${microchipButton}"
+
+//       return animalListItemEl;
+//     }
+
+//     const selectAnimalFormEl = document.querySelector("#create-animal-form")
+
+// function listensToSelectAnimalForm() {
+//     selectAnimalFormEl.addEventListener("submit", (event) => {
+//         event.preventDefault();
+
+//         const animalNameInput = selectAnimalFormEl.querySelector("#animal-name")
+
+//         console.log("animal name: ", animalNameInput.value)
 
 
-        const animalSelectType = selectAnimalFormEl.querySelector("#microchip")
-      
-        console.log("animal name: ", animalSelectType.value)
-      
-      fetch('http://localhost:3000/animals', {
-        method: 'post',
-        body: JSON.stringify({name: animalNameInput.value, animalSelectType}),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-        }).then(function (response) {
-          return response.json();
-          // console.log("response from post", response.json())
-          // response.json().then((vetData) => {
+//         const animalSelectType = selectAnimalFormEl.querySelector("#microchip")
 
-          // }) 
-          
-        }).then(function (newVet) {
-          console.log(newVet)
-        })
+//         console.log("animal name: ", animalSelectType.value)
 
-        fetch('http://localhost:3000/animals', {
-        method: 'post',
-        body: JSON.stringify({name: animalNameInput.value, animalSelectType}),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-        }).then(function (response) {
-          return response.json();
-          // console.log("response from post", response.json())
-          // response.json().then((vetData) => {
+//       fetch('http://localhost:3000/animals', {
+//         method: 'post',
+//         body: JSON.stringify({name: animalNameInput.value, animalSelectType}),
+//         headers: {
+//           'Content-Type': 'application/json'
+//         }
+//         }).then(function (response) {
+//           return response.json();
+//           // console.log("response from post", response.json())
+//           // response.json().then((vetData) => {
 
-          // }) 
-          
-        }).then(function (newVet) {
-          console.log(newVet)
-        })
+//           // }) 
+  
+//         }).then(function (newVet) {
+//           console.log(newVet)
+//         })
 
-      })
-    }
+//         fetch('http://localhost:3000/animals', {
+//         method: 'post',
+//         body: JSON.stringify({name: animalNameInput.value, animalSelectType}),
+//         headers: {
+//           'Content-Type': 'application/json'
+//         }
+//         }).then(function (response) {
+//           return response.json();
+//           // console.log("response from post", response.json())
+//           // response.json().then((vetData) => {
+
+//           // }) 
+  
+//         }).then(function (newVet) {
+//           console.log(newVet)
+//         })
+
+//       })
+//     }
 
 
 // Not sure what to put here - which bracket
 // 
 // 
-  // }
+// }
 // 
 // 
 // 
@@ -365,7 +477,7 @@ function listensToSelectAnimalForm() {
 // First attempt at getting the submit button to work
 
 // fetch(
-   
+
 // )
 //     .then((res) => res.json())
 //     // .then(("vets"."firstname") => { doesn't seem right
@@ -380,11 +492,11 @@ function listensToSelectAnimalForm() {
 
 
 
-    //   console.log("Inside GET fetch: ", state);
+//   console.log("Inside GET fetch: ", state);
 
 //    render the Vet section here or main section?
 
-        // options other than fetch (because there is no data online):
-        // CORRECTION: two options? fetch from db.json and fetch from input
-    //   })
-    // }
+// options other than fetch (because there is no data online):
+// CORRECTION: two options? fetch from db.json and fetch from input
+//   })
+// }
